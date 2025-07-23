@@ -20,7 +20,7 @@ const readBooks = async () => {
 const saveBooks = async (data) => {
   try {
     await fs.promises.writeFile(
-      path.join(__dirname, 'books.json'),
+      path.join(__dirname, '../books.json'),
       JSON.stringify(data, null, 2),
       'utf-8'
     );
@@ -53,7 +53,37 @@ const createBook = async (req, res) => {
   }
 };
 
+// delete a book
+const deleteBook = async (req, res) => {
+  try {
+    // 1. read all the books
+    const books = await readBooks(); // Using the async version
+    // 2. find the book by id
+    const bookIndex = books.findIndex((b) => b.id === parseInt(req.params.id));
+
+    // 3. Check if book exists
+    if (bookIndex === -1) {
+      return res.status(404).json({ error: 'Book not found' });
+    }
+
+    // 4 remove the book from array  Syntax: array.splice(startIndex, deleteCount) [0] means remove only that book
+    const deleteBook = books.splice(bookIndex, 1)[0];
+    console.log('checkign the deletebook', deleteBook);
+    // 5 write back to json
+    await saveBooks(books);
+
+    const updatedBooks = await readBooks();
+    console.log('Books after save:', updatedBooks); // verify
+    // 6. Return success (204 No Content or the deleted book)
+    res.status(200).json(deleteBook);
+  } catch (err) {
+    console.log('delete error', err);
+    res.status(500).json({ error: 'Failed to delete a book' });
+  }
+};
+
 module.exports = {
   getAllBooks,
   createBook,
+  deleteBook,
 };
