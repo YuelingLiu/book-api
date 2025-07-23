@@ -8,4 +8,5 @@ router.get('/', booksController.getAllBooks);
 // to delete a book by id
 router.delete('/:id', booksController.deleteBook);
 
+// to add a book
 module.exports = router;
